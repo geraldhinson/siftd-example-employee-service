@@ -24,12 +24,7 @@ CREATE TABLE IF NOT EXISTS "Resources" (
 
 CREATE INDEX IF NOT EXISTS "IX_Resources_OwnerId" ON "Resources" ("OwnerId");
 
-select * from public."Journal";
-select * from public."Resources";
-
-delete from public."Journal" where "Clock" = 55;
-delete from public."Resources" where "Id" = '094b6128-35db-425b-be40-2bec672d26b5';
+--select * from public."Journal";
+--select * from public."Resources";
 
 SELECT MAX("Clock") AS "Clock" FROM public."Journal";
-
-

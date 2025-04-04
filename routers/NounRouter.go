@@ -43,12 +43,13 @@ func (s *NounRouter) SetupRoutes() {
 	// typical expiry times are:
 	//   - security.ONE_DAY
 	//   - security.ONE_HOUR
+	//   - security.NO_AUTH (for public routes)
 	//
 	// typical models are:
-	//   - VALID_IDENTITY alone
-	//   - MACHINE_IDENTITY alone
-	//   - MATCHING_IDENTITY and MACHINE_IDENTITY (means either one is valid)
-	//   - NO_AUTH (for public routes)
+	//   - security.VALID_IDENTITY alone
+	//   - security.MACHINE_IDENTITY alone
+	//   - security.MATCHING_IDENTITY and MACHINE_IDENTITY (means either one is valid)
+	//   - security.NO_AUTH (for public routes)
 	//
 	// you can also pass in a list of groups to use for authorization (must exist on jwt to 'pass')
 	//   - []security.AuthGroup{"admins", "whatever"}
