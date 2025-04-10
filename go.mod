@@ -1,15 +1,13 @@
 module github.com/geraldhinson/siftd-example-employee-service
 
-go 1.24.0
-
-toolchain go1.24.2
+go 1.24.2
 
 require github.com/gorilla/mux v1.8.1
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
@@ -31,7 +29,7 @@ require (
 )
 
 require (
-	github.com/geraldhinson/siftd-base v1.24.0
+	github.com/geraldhinson/siftd-base v1.24.1
 	github.com/spf13/viper v1.20.1 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 )

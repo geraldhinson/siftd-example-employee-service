@@ -19,14 +19,15 @@ func NewNounJournalRouter(employeeService *serviceBase.ServiceBase) *NounJournal
 	//    easily seen in the routers folder)
 	// 2. It is important for the service writer to define the auth model for all routers
 	//
-	var authModelUsers = employeeService.NewAuthModel(security.ONE_DAY, []security.AuthTypes{security.NO_AUTH}, nil)
-	if authModelUsers == nil {
-		employeeService.Logger.Fatalf("Failed to initialize AuthModelUsers in NounJournalServiceRouter")
+	authModelMachine, err := employeeService.NewAuthModel(security.REALM_MACHINE, security.VALID_IDENTITY, security.ONE_HOUR, nil)
+	if err != nil {
+		employeeService.Logger.Fatalf("Failed to initialize AuthModelMachine in SecuredQueriesRouter : %v", err)
+		return nil
 	}
 
 	// OK. Auth is defined. Now use the helper code to do the rest of the heavy lifting here.
 	//
-	NounJournalRoutesHelper := helpers.NewNounJournalRoutesHelper[models.EmployeeResource](employeeService, authModelUsers)
+	NounJournalRoutesHelper := helpers.NewNounJournalRoutesHelper[models.EmployeeResource](employeeService, authModelMachine)
 	if NounJournalRoutesHelper == nil {
 		employeeService.Logger.Println("Error creating NounJournalRoutesHelper")
 		return nil

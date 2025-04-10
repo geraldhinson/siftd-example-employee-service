@@ -18,14 +18,15 @@ func NewFakeIdentityServiceRouter(employeeService *serviceBase.ServiceBase) *Fak
 	//    easily seen in the routers folder)
 	// 2. It is important for the service writer to define the auth model for all routers
 	//
-	var authModelUsers = employeeService.NewAuthModel(security.ONE_DAY, []security.AuthTypes{security.NO_AUTH}, nil)
-	if authModelUsers == nil {
-		employeeService.Logger.Fatalf("Failed to initialize AuthModelUsers in FakeIdentityServiceRouter")
+	authModel, err := employeeService.NewAuthModel(security.NO_REALM, security.NO_AUTH, security.NO_EXPIRY, nil)
+	if err != nil {
+		employeeService.Logger.Fatalf("Failed to initialize AuthModel in FakeIdentityServiceRouter : %v", err)
+		return nil
 	}
 
 	// OK. Auth is defined. Now use the helper code to do the rest of the heavy lifting here.
 	//
-	FakeIdentityServiceRoutesHelper := helpers.NewFakeIdentityServiceRoutesHelper(employeeService, authModelUsers)
+	FakeIdentityServiceRoutesHelper := helpers.NewFakeIdentityServiceRoutesHelper(employeeService, authModel)
 	if FakeIdentityServiceRoutesHelper == nil {
 		employeeService.Logger.Println("Error creating FakeIdentityServiceRoutesHelper")
 		return nil

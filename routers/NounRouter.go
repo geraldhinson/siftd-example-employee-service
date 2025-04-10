@@ -38,42 +38,32 @@ func NewNounRouter(serviceBase *serviceBase.ServiceBase) *NounRouter {
 }
 
 func (s *NounRouter) SetupRoutes() {
-	// AuthModel params:
+
+	// setup auth model to allow both machine (ie. other services) to all and user access to their own
 	//
-	// typical expiry times are:
-	//   - security.ONE_DAY
-	//   - security.ONE_HOUR
-	//   - security.NO_AUTH (for public routes)
-	//
-	// typical models are:
-	//   - security.VALID_IDENTITY alone
-	//   - security.MACHINE_IDENTITY alone
-	//   - security.MATCHING_IDENTITY and MACHINE_IDENTITY (means either one is valid)
-	//   - security.NO_AUTH (for public routes)
-	//
-	// you can also pass in a list of groups to use for authorization (must exist on jwt to 'pass')
-	//   - []security.AuthGroup{"admins", "whatever"}
-	//	 - nil for no groups
-	//
-	var authModelUsers = s.NewAuthModel(security.ONE_DAY, []security.AuthTypes{security.VALID_IDENTITY}, nil)
-	if authModelUsers == nil {
-		s.Logger.Fatalf("Failed to initialize AuthModelUsers in NounRouter")
+	authModel, err := s.NewAuthModel(security.REALM_MEMBER, security.MATCHING_IDENTITY, security.ONE_DAY, nil)
+	if err != nil {
+		s.Logger.Fatalf("Failed to initialize AuthModel in NounRouter: %v", err)
+	}
+	err = authModel.AddPolicy(security.REALM_MACHINE, security.VALID_IDENTITY, security.ONE_HOUR, nil)
+	if err != nil {
+		s.Logger.Fatalf("Failed to initialize AuthModel in NounRouter: %v", err)
 	}
 
 	var routeString = "/v1/identities/{identityId}/employees/{employeeId}"
-	s.RegisterRoute(constants.HTTP_GET, routeString, authModelUsers, s.GetEmployeeById)
+	s.RegisterRoute(constants.HTTP_GET, routeString, authModel, s.GetEmployeeById)
 
 	routeString = "/v1/identities/{identityId}/employees"
-	s.RegisterRoute(constants.HTTP_GET, routeString, authModelUsers, s.GetEmployeesByOwnerId)
+	s.RegisterRoute(constants.HTTP_GET, routeString, authModel, s.GetEmployeesByOwnerId)
 
 	routeString = "/v1/identities/{identityId}/employees"
-	s.RegisterRoute(constants.HTTP_POST, routeString, authModelUsers, s.CreateEmployee)
+	s.RegisterRoute(constants.HTTP_POST, routeString, authModel, s.CreateEmployee)
 
 	routeString = "/v1/identities/{identityId}/employees/{employeeId}"
-	s.RegisterRoute(constants.HTTP_PUT, routeString, authModelUsers, s.UpdateEmployeeById)
+	s.RegisterRoute(constants.HTTP_PUT, routeString, authModel, s.UpdateEmployeeById)
 
 	routeString = "/v1/identities/{identityId}/employees/{employeeId}"
-	s.RegisterRoute(constants.HTTP_DELETE, routeString, authModelUsers, s.DeleteEmployeeById)
+	s.RegisterRoute(constants.HTTP_DELETE, routeString, authModel, s.DeleteEmployeeById)
 }
 
 func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
