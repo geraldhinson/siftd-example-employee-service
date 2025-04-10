@@ -12,6 +12,7 @@ type HealthCheckRouter struct {
 }
 
 func NewHealthCheckRouter(employeeService *serviceBase.ServiceBase) *HealthCheckRouter {
+	employeeService.Logger.Info("Setting up the health check router")
 
 	// This router is mostly built using serviceBase implementation, but we don't fully implement it in
 	// serviceBase because:

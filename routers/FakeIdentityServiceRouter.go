@@ -11,6 +11,7 @@ type FakeIdentityServiceRouter struct {
 }
 
 func NewFakeIdentityServiceRouter(employeeService *serviceBase.ServiceBase) *FakeIdentityServiceRouter {
+	employeeService.Logger.Info("Setting up the fake identity service router")
 
 	// This router is mostly built using serviceBase implementation, but we don't fully implement it in
 	// serviceBase because:

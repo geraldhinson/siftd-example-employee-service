@@ -12,6 +12,7 @@ type NounJournalRouter struct {
 }
 
 func NewNounJournalRouter(employeeService *serviceBase.ServiceBase) *NounJournalRouter {
+	employeeService.Logger.Info("Setting up the noun journal router")
 
 	// This router is mostly built using serviceBase implementation, but we don't fully implement it in
 	// serviceBase because:

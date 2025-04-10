@@ -17,19 +17,19 @@ type NounRouter struct {
 	ResourceStore *resourceStore.PostgresResourceStoreWithJournal[models.EmployeeResource]
 }
 
-func NewNounRouter(serviceBase *serviceBase.ServiceBase) *NounRouter {
-	// this should be resource store
+func NewNounRouter(employeeService *serviceBase.ServiceBase) *NounRouter {
+	employeeService.Logger.Info("Setting up the noun router")
 
 	resourceStore, err := resourceStore.NewPostgresResourceStoreWithJournal[models.EmployeeResource](
-		serviceBase.Configuration,
-		serviceBase.Logger)
+		employeeService.Configuration,
+		employeeService.Logger)
 	if err != nil {
-		serviceBase.Logger.Println("Error creating PostgresResourceStoreWithJournal:", err)
+		employeeService.Logger.Println("Error creating PostgresResourceStoreWithJournal:", err)
 		return nil
 	}
 
 	NounRouter := &NounRouter{
-		ServiceBase:   serviceBase,
+		ServiceBase:   employeeService,
 		ResourceStore: resourceStore,
 	}
 	NounRouter.SetupRoutes()
@@ -38,7 +38,6 @@ func NewNounRouter(serviceBase *serviceBase.ServiceBase) *NounRouter {
 }
 
 func (s *NounRouter) SetupRoutes() {
-
 	// setup auth model to allow both machine (ie. other services) to all and user access to their own
 	//
 	authModel, err := s.NewAuthModel(security.REALM_MEMBER, security.MATCHING_IDENTITY, security.ONE_DAY, nil)
