@@ -1,1 +1,4 @@
 - replace this with somethingmore useful like a 'profiles' service (with a matching 'identities')
+- change to use its own database (vs unittests)
+- convert this to use the spiffy new serviceBase.Listen method (whee - graceful shutdowns!)
+- docker example
