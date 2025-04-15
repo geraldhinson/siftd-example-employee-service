@@ -1,0 +1,5 @@
+NOTE: these instructions assume you have postgres installed and running
+
+1) Follow the instructions in the Postgres SQL folder README file
+2) OK, at this point you should have your database created and have also updated app.env (DB_CONNECTSTRING) to match your new database. If you were successful you should be able to connect to postgres and query both public."Resources" and public."Journal" in your new database.
+3) Now change the other env variables in app.env to be correct for your service.
