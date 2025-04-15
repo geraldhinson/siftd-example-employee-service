@@ -20,19 +20,21 @@ func main() {
 		return
 	}
 
+	// the only router we need to write is the noun router
 	NounRouter := routers.NewNounRouter(employeeService)
 	if NounRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create noun api server. Shutting down.")
 		return
 	}
 
-	// can use default implementation, but must pass auth model
+	// here we use default implementation, but must pass auth model
 	NounJournalRouter := helpers.NewNounJournalRouter[models.EmployeeResource](employeeService, security.REALM_MACHINE, security.VALID_IDENTITY, security.ONE_HOUR, nil)
 	if NounJournalRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create journal api server. Shutting down.")
 		return
 	}
 
+	// here we use default implementation, but must pass auth model
 	HealthCheckRouter := helpers.NewNounHealthCheckRouter[models.EmployeeResource](employeeService, security.NO_REALM, security.NO_AUTH, security.NO_EXPIRY, nil)
 	if HealthCheckRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create health check api server. Shutting down.")
