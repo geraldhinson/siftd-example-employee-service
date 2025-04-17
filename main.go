@@ -57,5 +57,5 @@ func main() {
 		}
 	}
 
-	employeeService.ListenAndServe()
+	employeeService.ListenAndServe() // temporarily disabled for testing
 }
