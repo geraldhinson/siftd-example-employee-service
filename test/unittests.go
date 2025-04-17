@@ -1,3 +1,3 @@
-package main
+package unittests
 
 // see siftd-base for example
