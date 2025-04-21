@@ -67,10 +67,11 @@ func (s *NounRouter) SetupRoutes() {
 
 func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	urlIdentity := params["identityId"]
 	urlEmployee := params["employeeId"]
 
 	var Employee models.EmployeeResource
-	status, errmsg := s.ResourceStore.GetById(urlEmployee, &Employee) // TODO: this should use owner as well
+	status, errmsg := s.ResourceStore.GetById(urlEmployee, urlIdentity, &Employee) // TODO: this should use owner as well
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("GetById failed in GetEmployeeById with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)
@@ -131,8 +132,13 @@ func (s *NounRouter) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	var EmployeeResource = models.EmployeeResource{
 		ResourceBase: resourceStore.ResourceBase{OwnerId: urlIdentity}, Employee: Employee}
 
+	//	authToken := r.Header.Get("X-AuthToken")
+	// OR
+
+	authToken := security.GetAuthHeader(r)
+
 	// create the resource
-	resource, status, errmsg := s.ResourceStore.CreateResource(&EmployeeResource)
+	resource, status, errmsg := s.ResourceStore.CreateResource(&EmployeeResource, authToken)
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("CreateResource failed in CreateEmployee with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)
@@ -163,8 +169,13 @@ func (s *NounRouter) UpdateEmployeeById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	//	authToken := r.Header.Get("X-AuthToken")
+	// OR
+
+	authToken := security.GetAuthHeader(r)
+
 	// update the resource
-	updatedResource, status, errmsg := s.ResourceStore.UpdateResource(&EmployeeResource, urlIdentity, employeeId)
+	updatedResource, status, errmsg := s.ResourceStore.UpdateResource(&EmployeeResource, urlIdentity, employeeId, authToken)
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("UpdateResource failed in UpdateEmployee with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)
@@ -187,15 +198,20 @@ func (s *NounRouter) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) 
 	urlEmployeeId := params["employeeId"]
 
 	var Employee models.EmployeeResource
-	status, errmsg := s.ResourceStore.GetById(urlEmployeeId, &Employee) // TODO: this should use owner as well
+	status, errmsg := s.ResourceStore.GetById(urlEmployeeId, urlIdentityId, &Employee) // TODO: this should use owner as well
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("GetById failed in DeleteEmployeeById with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)
 		return
 	}
 
+	//	authToken := r.Header.Get("X-AuthToken")
+	// OR
+
+	authToken := security.GetAuthHeader(r)
+
 	Employee.Deleted = true
-	updatedResource, status, errmsg := s.ResourceStore.UpdateResource(&Employee, urlIdentityId, urlEmployeeId)
+	updatedResource, status, errmsg := s.ResourceStore.UpdateResource(&Employee, urlIdentityId, urlEmployeeId, authToken)
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("UpdateResource failed in DeleteEmployeeById with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)

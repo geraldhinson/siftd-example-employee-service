@@ -29,7 +29,7 @@ require (
 )
 
 require (
-	github.com/geraldhinson/siftd-base v0.12.1-0.20250417013914-3c75032131de
+	github.com/geraldhinson/siftd-base v0.13.0
 	github.com/spf13/viper v1.20.1 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 )
