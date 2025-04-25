@@ -19,12 +19,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/createFakeMachineToken",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/createFakeMachineToken",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"createFakeMachineToken"
@@ -77,12 +76,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/createFakeUserToken",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/createFakeUserToken",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"createFakeUserToken"
@@ -93,6 +91,29 @@
 							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjUxNGViMTZiLTM3MzgtNDgxMS1hNGY3LTAzMmJlNGYwMGQxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDIwODA3NjgsImlzcyI6InNlcnZpY2UtYmFzZSIsImp0aSI6IjM1OWQ1ZGQ3LTIzZDktNGNmNy1hMThlLTg3YmMwYjZkMGUxMSIsInJvbGVzIjpbImFkbWluIl0sInN1YiI6ImJlMzdiZTM3YmE5OS1mOWMwLTRmNjMtODU1Ny1jYTc5YTBiNGFiNDUiLCJzdWJfdHlwZSI6Ik1lbWJlciJ9.JKRf7IDuU-v1Mw_8DUqBgXJC5vogh9HG5L97E9rp2NNV0bf2sV2XT6J4uF_QGHzIgoikn8fx80GhRpsnGCNzsXKW9FSMSf5ZeRaqEARsb0g_WcRefTrvHeyRSKStWo6GBtpp8FoB0LbsE4uHC-HJj3eSyDzue2aOiZ4J-y7Q_ato2uJI3tb97qux-e6mkCkj3GTXLmjONtdKAFTy2dfGjXHIGGBEmvzadp2caUBpFQX8bTqU0G_tVW75K6GqOipLEwKHNmRDuxN5GCIkG9qfqMRdd2_jg7ookJ-fc7MaDVeKtYghUODpG1Gqa1yy3xBf5nam-k-9HgDVSbKTPJPQDw",
 							"disabled": true
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetHealth",
+			"protocolProfileBehavior": {
+				"strictSSL": true,
+				"followRedirects": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/health",
+					"protocol": "{{HTTP}}",
+					"host": [
+						"{{EMPLOYEE-NOUN}}"
+					],
+					"path": [
+						"v1",
+						"health"
 					]
 				}
 			},
@@ -131,12 +152,11 @@
 					"raw": "{\n  \"name\": \"Garfield\",\n  \"age\": 5\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8882/v1/identities/1234/employees",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"identities",
@@ -180,18 +200,17 @@
 					"raw": "{\n    \"id\": \"126f81a3-7482-4884-8b58-6dba1b209d9a\",\n    \"ownerId\": \"GUID-fake-member-GUID\",\n    \"version\": 1,\n    \"createdAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"updatedAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"deleted\": false,\n    \"employee\": {\n        \"name\": \"Dilbert\",\n        \"age\": 55\n    }\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8882/v1/identities/GUID-fake-member-GUID/employees/126f81a3-7482-4884-8b58-6dba1b209d9a",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/{{",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"identities",
 						"GUID-fake-member-GUID",
 						"employees",
-						"126f81a3-7482-4884-8b58-6dba1b209d9a"
+						"{{"
 					]
 				}
 			},
@@ -230,42 +249,17 @@
 					"raw": "{\n    \"id\": \"f0792379-71ed-468d-b622-b3709a05482f\",\n    \"ownerId\": \"1234-guid\",\n    \"version\": 2,\n    \"createdAt\": \"2025-03-26T23:29:56.361872Z\",\n    \"updatedAt\": \"2025-03-26T23:29:56.361872Z\",\n    \"deleted\": false,\n    \"employee\": {\n        \"name\": \"Bob\",\n        \"age\": 34\n    }\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8882/v1/identities/GUID-fake-member-GUID/employees/a4155e85-d2ca-4e7e-91b6-51a015dbfaf0",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/a4155e85-d2ca-4e7e-91b6-51a015dbfaf0",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"identities",
 						"GUID-fake-member-GUID",
 						"employees",
 						"a4155e85-d2ca-4e7e-91b6-51a015dbfaf0"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetHealth",
-			"protocolProfileBehavior": {
-				"strictSSL": true,
-				"followRedirects": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8882/v1/health",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8882",
-					"path": [
-						"v1",
-						"health"
 					]
 				}
 			},
@@ -283,12 +277,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/identities/1234/employees/3b1be6a2-8cba-4b68-825b-1bf332abfff7",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees/3b1be6a2-8cba-4b68-825b-1bf332abfff7",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"identities",
@@ -319,12 +312,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/identities/1234/employees",
+					"raw": "http://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees",
 					"protocol": "http",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"identities",
@@ -354,12 +346,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/journal?clock=1&limit=10",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/journal?clock=1&limit=10",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"journal"
@@ -390,12 +381,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8882/v1/journalMaxClock",
-					"protocol": "http",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/journalMaxClock",
+					"protocol": "{{HTTP}}",
 					"host": [
-						"localhost"
+						"{{EMPLOYEE-NOUN}}"
 					],
-					"port": "8882",
 					"path": [
 						"v1",
 						"journalMaxClock"
@@ -403,6 +393,35 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "EMPLOYEE-NOUN",
+			"value": "localhost:8882",
+			"type": "string"
 		}
 	]
 }
