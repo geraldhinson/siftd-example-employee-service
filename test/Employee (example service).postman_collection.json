@@ -8,6 +8,32 @@
 	"item": [
 		{
 			"name": "CreateFakeServiceJWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Get the raw text response (not JSON)",
+							"let token = pm.response.text();",
+							"",
+							"// Optional: Trim whitespace if needed",
+							"token = token.trim();",
+							"",
+							"// Set it as an environment variable",
+							"pm.collectionVariables.set(\"MachineToken\", token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -58,7 +84,14 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"// Get the raw text response (not JSON)",
+							"let token = pm.response.text();",
+							"",
+							"// Optional: Trim whitespace if needed",
+							"token = token.trim();",
+							"",
+							"// Set it as an environment variable",
+							"pm.collectionVariables.set(\"UserToken\", token);"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -126,10 +159,20 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"let jsonData = pm.response.json();",
+							"",
+							"// Set the environment variable",
+							"pm.collectionVariables.set(\"EmployeeId\", jsonData.id);"
 						],
 						"type": "text/javascript",
 						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
 					}
 				}
 			],
@@ -152,7 +195,7 @@
 					"raw": "{\n  \"name\": \"Garfield\",\n  \"age\": 5\n}\n"
 				},
 				"url": {
-					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees",
 					"protocol": "{{HTTP}}",
 					"host": [
 						"{{EMPLOYEE-NOUN}}"
@@ -160,7 +203,7 @@
 					"path": [
 						"v1",
 						"identities",
-						"1234",
+						"GUID-fake-member-GUID",
 						"employees"
 					]
 				}
@@ -197,10 +240,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id\": \"126f81a3-7482-4884-8b58-6dba1b209d9a\",\n    \"ownerId\": \"GUID-fake-member-GUID\",\n    \"version\": 1,\n    \"createdAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"updatedAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"deleted\": false,\n    \"employee\": {\n        \"name\": \"Dilbert\",\n        \"age\": 55\n    }\n}\n"
+					"raw": "{\n    \"id\": \"{{EmployeeId}}\",\n    \"ownerId\": \"GUID-fake-member-GUID\",\n    \"version\": 1,\n    \"createdAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"updatedAt\": \"2025-04-17T00:34:21.517911Z\",\n    \"deleted\": false,\n    \"employee\": {\n        \"name\": \"Dilbert\",\n        \"age\": 55\n    }\n}\n"
 				},
 				"url": {
-					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/{{",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/{{EmployeeId}}",
 					"protocol": "{{HTTP}}",
 					"host": [
 						"{{EMPLOYEE-NOUN}}"
@@ -210,7 +253,76 @@
 						"identities",
 						"GUID-fake-member-GUID",
 						"employees",
-						"{{"
+						"{{EmployeeId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmployeeById",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{UserToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/{{EmployeeId}}",
+					"protocol": "{{HTTP}}",
+					"host": [
+						"{{EMPLOYEE-NOUN}}"
+					],
+					"path": [
+						"v1",
+						"identities",
+						"GUID-fake-member-GUID",
+						"employees",
+						"{{EmployeeId}}"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhM2Q0YzJiLTg1OWItNGU0Yi05OWEzLTkyZmMxMTVjYTA5OCIsInR5cCI6IkpXVCJ9.eyJzdWJfbmFtZSI6IlRFU1QgRklGVFlGSVZFIiwiYnJhbmQiOjEsInBlciI6ZmFsc2UsImZhY3RvcnMiOnsia19wdyI6MTYwNzQ5MTg3MX0sImp0aSI6ImU0MGVhMzhiLTczNWEtNDVmZi1hNTI3LTFjYWU4N2RhNzg2MCIsImlhdCI6MTYwNzQ5MTg3MSwicmF0IjoxNjA3NDkxODcxLCJzdWIiOiJlN2ZhZDgxYy04NmE3LTQ2NjktODliMS0zN2FhNWRkMDE2ZDAiLCJzdWJfdHlwZSI6IlVzZXIiLCJpc3MiOiJodHRwOi8vaWRlbnRpdGllcy5hcGkuZGV2LWxlZ2Fsc2hpZWxkLmNvbSJ9.SDWE8QWXevnD90cojCSg2x3fFUI9kTqc2PvGw_o37cmi304esqDgASF48O4y2W60XDtCv71B4__5Mz3DGYplLoShGb9V0SmGexDuaCw7V_R7fgYJ4ljzafJGlT4-xY22M3cW6PETLfLdi-FfAJSHNqr1Et0tkua7nn8par87yncmMniPvl2YdGjEJ3oy_zq7hld37dkYv3KRaQyMYEc4rp62sKqweoZ7KbOvB4CZcltTANuPsD6GqDQrSFFHWL4Z0Te2I9QtvIftmWs1tTxRtN_IsYWIUJVCaYdiW4OkDwy77zFb8Gr3jKPP-xFjvqT3eQcrsZaQkyA94VV-fqiILbYgic78wvMNETR1nWKvpDIXnV8y_ExrhUALkcIVTouYIKOnA4hMtV3eQb7M6p56xdgjBWFyIJgilZsIgthoPx1SFYg7tF0KzKRXomFLmGvEvx36ZJQ4Fy8gGmp2P3BWtK0XavWihRYVAA431LXiQXelw-w4YbyKfTIdDVh1wlvmPNOjKgw5J1TyTtir4gTyZusBCn8Nhv-TpW5DZOZBopZq_LQfbVjdrAyCdnh5L7DGKu6c3XwntEa-kCausqavZI3IfZbvVS2B8dV8gMhftC3lJFbqFm_LJIPtuZOjYKRg-xiUZCn-MgMV67BTZPuW8DLWBqhY4oz5q1W4Jt3KrzA",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmployeesByOwnerId",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{UserToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees",
+					"protocol": "{{HTTP}}",
+					"host": [
+						"{{EMPLOYEE-NOUN}}"
+					],
+					"path": [
+						"v1",
+						"identities",
+						"GUID-fake-member-GUID",
+						"employees"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhM2Q0YzJiLTg1OWItNGU0Yi05OWEzLTkyZmMxMTVjYTA5OCIsInR5cCI6IkpXVCJ9.eyJzdWJfbmFtZSI6IlRFU1QgRklGVFlGSVZFIiwiYnJhbmQiOjEsInBlciI6ZmFsc2UsImZhY3RvcnMiOnsia19wdyI6MTYwNzQ5MTg3MX0sImp0aSI6ImU0MGVhMzhiLTczNWEtNDVmZi1hNTI3LTFjYWU4N2RhNzg2MCIsImlhdCI6MTYwNzQ5MTg3MSwicmF0IjoxNjA3NDkxODcxLCJzdWIiOiJlN2ZhZDgxYy04NmE3LTQ2NjktODliMS0zN2FhNWRkMDE2ZDAiLCJzdWJfdHlwZSI6IlVzZXIiLCJpc3MiOiJodHRwOi8vaWRlbnRpdGllcy5hcGkuZGV2LWxlZ2Fsc2hpZWxkLmNvbSJ9.SDWE8QWXevnD90cojCSg2x3fFUI9kTqc2PvGw_o37cmi304esqDgASF48O4y2W60XDtCv71B4__5Mz3DGYplLoShGb9V0SmGexDuaCw7V_R7fgYJ4ljzafJGlT4-xY22M3cW6PETLfLdi-FfAJSHNqr1Et0tkua7nn8par87yncmMniPvl2YdGjEJ3oy_zq7hld37dkYv3KRaQyMYEc4rp62sKqweoZ7KbOvB4CZcltTANuPsD6GqDQrSFFHWL4Z0Te2I9QtvIftmWs1tTxRtN_IsYWIUJVCaYdiW4OkDwy77zFb8Gr3jKPP-xFjvqT3eQcrsZaQkyA94VV-fqiILbYgic78wvMNETR1nWKvpDIXnV8y_ExrhUALkcIVTouYIKOnA4hMtV3eQb7M6p56xdgjBWFyIJgilZsIgthoPx1SFYg7tF0KzKRXomFLmGvEvx36ZJQ4Fy8gGmp2P3BWtK0XavWihRYVAA431LXiQXelw-w4YbyKfTIdDVh1wlvmPNOjKgw5J1TyTtir4gTyZusBCn8Nhv-TpW5DZOZBopZq_LQfbVjdrAyCdnh5L7DGKu6c3XwntEa-kCausqavZI3IfZbvVS2B8dV8gMhftC3lJFbqFm_LJIPtuZOjYKRg-xiUZCn-MgMV67BTZPuW8DLWBqhY4oz5q1W4Jt3KrzA",
+							"disabled": true
+						}
 					]
 				}
 			},
@@ -249,7 +361,7 @@
 					"raw": "{\n    \"id\": \"f0792379-71ed-468d-b622-b3709a05482f\",\n    \"ownerId\": \"1234-guid\",\n    \"version\": 2,\n    \"createdAt\": \"2025-03-26T23:29:56.361872Z\",\n    \"updatedAt\": \"2025-03-26T23:29:56.361872Z\",\n    \"deleted\": false,\n    \"employee\": {\n        \"name\": \"Bob\",\n        \"age\": 34\n    }\n}\n"
 				},
 				"url": {
-					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/a4155e85-d2ca-4e7e-91b6-51a015dbfaf0",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/GUID-fake-member-GUID/employees/{{EmployeeId}}",
 					"protocol": "{{HTTP}}",
 					"host": [
 						"{{EMPLOYEE-NOUN}}"
@@ -259,76 +371,7 @@
 						"identities",
 						"GUID-fake-member-GUID",
 						"employees",
-						"a4155e85-d2ca-4e7e-91b6-51a015dbfaf0"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetEmployeeById",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{UserToken}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees/3b1be6a2-8cba-4b68-825b-1bf332abfff7",
-					"protocol": "{{HTTP}}",
-					"host": [
-						"{{EMPLOYEE-NOUN}}"
-					],
-					"path": [
-						"v1",
-						"identities",
-						"1234",
-						"employees",
-						"3b1be6a2-8cba-4b68-825b-1bf332abfff7"
-					],
-					"query": [
-						{
-							"key": "Authorization",
-							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhM2Q0YzJiLTg1OWItNGU0Yi05OWEzLTkyZmMxMTVjYTA5OCIsInR5cCI6IkpXVCJ9.eyJzdWJfbmFtZSI6IlRFU1QgRklGVFlGSVZFIiwiYnJhbmQiOjEsInBlciI6ZmFsc2UsImZhY3RvcnMiOnsia19wdyI6MTYwNzQ5MTg3MX0sImp0aSI6ImU0MGVhMzhiLTczNWEtNDVmZi1hNTI3LTFjYWU4N2RhNzg2MCIsImlhdCI6MTYwNzQ5MTg3MSwicmF0IjoxNjA3NDkxODcxLCJzdWIiOiJlN2ZhZDgxYy04NmE3LTQ2NjktODliMS0zN2FhNWRkMDE2ZDAiLCJzdWJfdHlwZSI6IlVzZXIiLCJpc3MiOiJodHRwOi8vaWRlbnRpdGllcy5hcGkuZGV2LWxlZ2Fsc2hpZWxkLmNvbSJ9.SDWE8QWXevnD90cojCSg2x3fFUI9kTqc2PvGw_o37cmi304esqDgASF48O4y2W60XDtCv71B4__5Mz3DGYplLoShGb9V0SmGexDuaCw7V_R7fgYJ4ljzafJGlT4-xY22M3cW6PETLfLdi-FfAJSHNqr1Et0tkua7nn8par87yncmMniPvl2YdGjEJ3oy_zq7hld37dkYv3KRaQyMYEc4rp62sKqweoZ7KbOvB4CZcltTANuPsD6GqDQrSFFHWL4Z0Te2I9QtvIftmWs1tTxRtN_IsYWIUJVCaYdiW4OkDwy77zFb8Gr3jKPP-xFjvqT3eQcrsZaQkyA94VV-fqiILbYgic78wvMNETR1nWKvpDIXnV8y_ExrhUALkcIVTouYIKOnA4hMtV3eQb7M6p56xdgjBWFyIJgilZsIgthoPx1SFYg7tF0KzKRXomFLmGvEvx36ZJQ4Fy8gGmp2P3BWtK0XavWihRYVAA431LXiQXelw-w4YbyKfTIdDVh1wlvmPNOjKgw5J1TyTtir4gTyZusBCn8Nhv-TpW5DZOZBopZq_LQfbVjdrAyCdnh5L7DGKu6c3XwntEa-kCausqavZI3IfZbvVS2B8dV8gMhftC3lJFbqFm_LJIPtuZOjYKRg-xiUZCn-MgMV67BTZPuW8DLWBqhY4oz5q1W4Jt3KrzA",
-							"disabled": true
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetEmployeesByOwnerId",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{UserToken}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://{{EMPLOYEE-NOUN}}/v1/identities/1234/employees",
-					"protocol": "http",
-					"host": [
-						"{{EMPLOYEE-NOUN}}"
-					],
-					"path": [
-						"v1",
-						"identities",
-						"1234",
-						"employees"
-					],
-					"query": [
-						{
-							"key": "Authorization",
-							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhM2Q0YzJiLTg1OWItNGU0Yi05OWEzLTkyZmMxMTVjYTA5OCIsInR5cCI6IkpXVCJ9.eyJzdWJfbmFtZSI6IlRFU1QgRklGVFlGSVZFIiwiYnJhbmQiOjEsInBlciI6ZmFsc2UsImZhY3RvcnMiOnsia19wdyI6MTYwNzQ5MTg3MX0sImp0aSI6ImU0MGVhMzhiLTczNWEtNDVmZi1hNTI3LTFjYWU4N2RhNzg2MCIsImlhdCI6MTYwNzQ5MTg3MSwicmF0IjoxNjA3NDkxODcxLCJzdWIiOiJlN2ZhZDgxYy04NmE3LTQ2NjktODliMS0zN2FhNWRkMDE2ZDAiLCJzdWJfdHlwZSI6IlVzZXIiLCJpc3MiOiJodHRwOi8vaWRlbnRpdGllcy5hcGkuZGV2LWxlZ2Fsc2hpZWxkLmNvbSJ9.SDWE8QWXevnD90cojCSg2x3fFUI9kTqc2PvGw_o37cmi304esqDgASF48O4y2W60XDtCv71B4__5Mz3DGYplLoShGb9V0SmGexDuaCw7V_R7fgYJ4ljzafJGlT4-xY22M3cW6PETLfLdi-FfAJSHNqr1Et0tkua7nn8par87yncmMniPvl2YdGjEJ3oy_zq7hld37dkYv3KRaQyMYEc4rp62sKqweoZ7KbOvB4CZcltTANuPsD6GqDQrSFFHWL4Z0Te2I9QtvIftmWs1tTxRtN_IsYWIUJVCaYdiW4OkDwy77zFb8Gr3jKPP-xFjvqT3eQcrsZaQkyA94VV-fqiILbYgic78wvMNETR1nWKvpDIXnV8y_ExrhUALkcIVTouYIKOnA4hMtV3eQb7M6p56xdgjBWFyIJgilZsIgthoPx1SFYg7tF0KzKRXomFLmGvEvx36ZJQ4Fy8gGmp2P3BWtK0XavWihRYVAA431LXiQXelw-w4YbyKfTIdDVh1wlvmPNOjKgw5J1TyTtir4gTyZusBCn8Nhv-TpW5DZOZBopZq_LQfbVjdrAyCdnh5L7DGKu6c3XwntEa-kCausqavZI3IfZbvVS2B8dV8gMhftC3lJFbqFm_LJIPtuZOjYKRg-xiUZCn-MgMV67BTZPuW8DLWBqhY4oz5q1W4Jt3KrzA",
-							"disabled": true
-						}
+						"{{EmployeeId}}"
 					]
 				}
 			},
@@ -346,7 +389,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/journal?clock=1&limit=10",
+					"raw": "{{HTTP}}://{{EMPLOYEE-NOUN}}/v1/journal?clock=10950&limit=100",
 					"protocol": "{{HTTP}}",
 					"host": [
 						"{{EMPLOYEE-NOUN}}"
@@ -358,11 +401,11 @@
 					"query": [
 						{
 							"key": "clock",
-							"value": "1"
+							"value": "10950"
 						},
 						{
 							"key": "limit",
-							"value": "10"
+							"value": "100"
 						}
 					]
 				}
@@ -422,6 +465,23 @@
 			"key": "EMPLOYEE-NOUN",
 			"value": "localhost:8882",
 			"type": "string"
+		},
+		{
+			"key": "HTTP",
+			"value": "http",
+			"type": "string"
+		},
+		{
+			"key": "MachineToken",
+			"value": ""
+		},
+		{
+			"key": "UserToken",
+			"value": ""
+		},
+		{
+			"key": "EmployeeId",
+			"value": ""
 		}
 	]
 }
