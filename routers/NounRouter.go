@@ -20,9 +20,11 @@ type NounRouter struct {
 func NewNounRouter(employeeService *serviceBase.ServiceBase) *NounRouter {
 	employeeService.Logger.Info("Setting up the noun router")
 
-	resourceStore, err := resourceStore.NewPostgresResourceStoreWithJournal[models.EmployeeResource](
+	resourceStore, err := resourceStore.NewPostgresJournaledResourceStore[models.EmployeeResource](
 		employeeService.Configuration,
-		employeeService.Logger)
+		employeeService.Logger,
+		"NOUNROUTER_MAX_DATABASE_CONNECTIONS",
+	)
 	if err != nil {
 		employeeService.Logger.Println("Error creating PostgresResourceStoreWithJournal:", err)
 		return nil
@@ -71,7 +73,7 @@ func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
 	urlEmployee := params["employeeId"]
 
 	var Employee models.EmployeeResource
-	status, errmsg := s.ResourceStore.GetById(urlEmployee, urlIdentity, &Employee) // TODO: this should use owner as well
+	status, errmsg := s.ResourceStore.GetById(urlIdentity, urlEmployee, &Employee) // TODO: this should use owner as well
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("GetById failed in GetEmployeeById with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)
@@ -198,7 +200,7 @@ func (s *NounRouter) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) 
 	urlEmployeeId := params["employeeId"]
 
 	var Employee models.EmployeeResource
-	status, errmsg := s.ResourceStore.GetById(urlEmployeeId, urlIdentityId, &Employee) // TODO: this should use owner as well
+	status, errmsg := s.ResourceStore.GetById(urlIdentityId, urlEmployeeId, &Employee) // TODO: this should use owner as well
 	if status != constants.RESOURCE_OK_CODE {
 		s.Logger.Info("GetById failed in DeleteEmployeeById with: ", errmsg)
 		s.WriteHttpError(w, status, errmsg)

@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/geraldhinson/siftd-base/pkg/constants"
 	"github.com/geraldhinson/siftd-base/pkg/helpers"
 	"github.com/geraldhinson/siftd-base/pkg/security"
 	"github.com/geraldhinson/siftd-base/pkg/serviceBase"
@@ -41,21 +39,22 @@ func main() {
 		return
 	}
 
-	// setup
-	listenAddress := employeeService.Configuration.GetString(constants.LISTEN_ADDRESS)
-	if listenAddress == "" {
-		employeeService.Logger.Fatalf("Unable to retrieve listen address and port. Shutting down.")
-		return
-	}
-
-	// if we are running on localhost, we can add a fake identity service for testing (id is hardcoded in FakeKeyStore.go)
-	if strings.Contains(listenAddress, "localhost") {
-		FakeIdentityServiceRouter := helpers.NewFakeIdentityServiceRouter(employeeService, security.NO_REALM, security.NO_AUTH, security.NO_EXPIRY, nil)
+	// Add fake identity endpoints for local loopback testing.
+	if employeeService.IsLoopbackListener() {
+		FakeIdentityServiceRouter := helpers.NewFakeIdentityServiceRouter(
+			employeeService,
+			security.NO_REALM,
+			security.NO_AUTH,
+			security.NO_EXPIRY,
+			nil,
+		)
 		if FakeIdentityServiceRouter == nil {
-			employeeService.Logger.Fatalf("Failed to create fake identity service api server (for testing only). Shutting down.")
+			employeeService.Logger.Fatalf(
+				"Failed to create fake identity service api server (for testing only). Shutting down.",
+			)
 			return
 		}
 	}
 
-	employeeService.ListenAndServe() // temporarily disabled for testing
+	employeeService.ListenAndServe()
 }

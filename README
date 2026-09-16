@@ -3,3 +3,20 @@ NOTE: these instructions assume you have postgres installed and running
 1) Follow the instructions in the Postgres SQL folder README file
 2) OK, at this point you should have your database created and have also updated app.env (DB_CONNECTSTRING) to match your new database. If you were successful you should be able to connect to postgres and query both public."Resources" and public."Journal" in your new database.
 3) Now change the other env variables in app.env to be correct for your service.
+
+Local testing and identity configuration
+
+When the effective listener is loopback (localhost, 127.0.0.1, or ::1),
+this example registers fake identity endpoints for testing. Set
+IDENTITY_SERVICE to this service's URL, matching its scheme and port.
+
+For local HTTPS testing, set LISTEN_ADDRESS and IDENTITY_SERVICE to
+https://localhost:8882 and configure HTTPS_CERT_FILENAME and
+HTTPS_KEY_FILENAME with your local test certificate and key.
+
+When PORT is set, SIFTD Base overrides LISTEN_ADDRESS and listens on
+http://0.0.0.0:<PORT>. The fake identity endpoints are not registered.
+
+For LAN/device testing or deployment, use a non-loopback listener and
+set IDENTITY_SERVICE to your real identity service's URL. Fake identity
+endpoints are available only with a loopback listener.

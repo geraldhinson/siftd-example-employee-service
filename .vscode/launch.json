@@ -12,6 +12,7 @@
             "program": "employee.go",
             "env": {
                 "RESDIR_PATH": "${workspaceFolder}",
+                "SIFTD_ENV_FILE": "app.env",
             },
             "cwd": "${workspaceFolder}"
         },
@@ -23,6 +24,7 @@
             "program": "test/unittests.go",
             "env": {
                 "RESDIR_PATH": "${workspaceFolder}",
+                "SIFTD_ENV_FILE": "app.env",
             },
             "cwd": "${workspaceFolder}"
         }
