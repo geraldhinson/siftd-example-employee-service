@@ -33,4 +33,4 @@ require (
 	golang.org/x/sys v0.44.0 // indirect
 )
 
-//replace github.com/geraldhinson/siftd-base v0.16.0 => /Users/geraldhinson/go/src/github.com/geraldhinson/siftd/siftd-base
+replace github.com/geraldhinson/siftd-base v0.16.0 => /Users/geraldhinson/go/src/github.com/geraldhinson/siftd/siftd-base

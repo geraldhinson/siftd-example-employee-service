@@ -2,6 +2,8 @@ package routers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/geraldhinson/siftd-base/pkg/constants"
@@ -20,35 +22,56 @@ type NounRouter struct {
 func NewNounRouter(employeeService *serviceBase.ServiceBase) *NounRouter {
 	employeeService.Logger.Info("Setting up the noun router")
 
-	resourceStore, err := resourceStore.NewPostgresJournaledResourceStore[models.EmployeeResource](
+	store, err := resourceStore.NewPostgresJournaledResourceStore[models.EmployeeResource](
 		employeeService.Configuration,
 		employeeService.Logger,
 		"NOUNROUTER_MAX_DATABASE_CONNECTIONS",
 	)
 	if err != nil {
-		employeeService.Logger.Println("Error creating PostgresResourceStoreWithJournal:", err)
+		employeeService.Logger.Errorf("Error creating PostgresResourceStoreWithJournal: %v", err)
 		return nil
 	}
 
 	NounRouter := &NounRouter{
 		ServiceBase:   employeeService,
-		ResourceStore: resourceStore,
+		ResourceStore: store,
 	}
-	NounRouter.SetupRoutes()
+	err = NounRouter.SetupRoutes()
+	if err != nil {
+		store.Close()
+
+		employeeService.Logger.Errorf(
+			"noun router - failure detected while setting up routes: %v",
+			err,
+		)
+
+		return nil
+	}
+
+	if err := employeeService.RegisterShutdown(store.Close); err != nil {
+		store.Close()
+
+		employeeService.Logger.Errorf(
+			"noun router - failed to register store shutdown: %v",
+			err,
+		)
+
+		return nil
+	}
 
 	return NounRouter
 }
 
-func (s *NounRouter) SetupRoutes() {
+func (s *NounRouter) SetupRoutes() error {
 	// setup auth model to allow both machine (ie. other services) to all and user access to their own
 	//
 	authModel, err := s.NewAuthModel(security.REALM_MEMBER, security.MATCHING_IDENTITY, security.ONE_DAY, nil)
 	if err != nil {
-		s.Logger.Fatalf("Failed to initialize AuthModel in NounRouter: %v", err)
+		return fmt.Errorf("Failed to initialize REALM_MEMBER/MATCHING_IDENTITY AuthModel in NounRouter: %w", err)
 	}
 	err = authModel.AddPolicy(security.REALM_MACHINE, security.VALID_IDENTITY, security.ONE_HOUR, nil)
 	if err != nil {
-		s.Logger.Fatalf("Failed to initialize AuthModel in NounRouter: %v", err)
+		return fmt.Errorf("Failed to initialize REALM_MACHINE/VALID_IDENTITY AuthModel in NounRouter: %w", err)
 	}
 
 	var routeString = "/v1/identities/{identityId}/employees/{employeeId}"
@@ -65,6 +88,8 @@ func (s *NounRouter) SetupRoutes() {
 
 	routeString = "/v1/identities/{identityId}/employees/{employeeId}"
 	s.RegisterRoute(constants.HTTP_DELETE, routeString, authModel, s.DeleteEmployeeById)
+
+	return nil
 }
 
 func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +107,7 @@ func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
 
 	jsonResults, errmsg := json.Marshal(Employee)
 	if errmsg != nil {
-		s.Logger.Info("Failed to convert employee to json: ", errmsg)
+		s.Logger.Error("GetEmployeeById failed to convert employee to json: ", errmsg)
 		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
 		return
 	}
@@ -102,11 +127,10 @@ func (s *NounRouter) GetEmployeesByOwnerId(w http.ResponseWriter, r *http.Reques
 		s.WriteHttpError(w, status, errmsg)
 		return
 	}
-
 	jsonResults, err := json.Marshal(Employees)
 	if err != nil {
-		s.Logger.Info("Failed to convert employee to json: ", err)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
+		s.Logger.Error("GetEmployeesByOwnerId failed to convert employees to json: ", err)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, err)
 		return
 	}
 	// make empty array if no results found - it's friendlier to the client
@@ -121,11 +145,16 @@ func (s *NounRouter) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	urlIdentity := params["identityId"]
 
-	var Employee models.Employee
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&Employee)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		s.Logger.Info("Failed  in CreateEmployeeto read http body: ", err)
+		s.Logger.Info("Failed  in CreateEmployee to read http body: ", err)
+		s.WriteHttpError(w, constants.RESOURCE_BAD_REQUEST_CODE, err)
+		return
+	}
+
+	var Employee models.Employee
+	if err := json.Unmarshal(body, &Employee); err != nil {
+		s.Logger.Info("CreateEmployee failed to unmarshall http body: ", err)
 		s.WriteHttpError(w, constants.RESOURCE_BAD_REQUEST_CODE, err)
 		return
 	}
@@ -135,8 +164,7 @@ func (s *NounRouter) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 		ResourceBase: resourceStore.ResourceBase{OwnerId: urlIdentity}, Employee: Employee}
 
 	//	authToken := r.Header.Get("X-AuthToken")
-	// OR
-
+	// OR just use:
 	authToken := security.GetAuthHeader(r)
 
 	// create the resource
@@ -149,7 +177,7 @@ func (s *NounRouter) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 
 	jsonResults, errmsg := json.Marshal(resource)
 	if errmsg != nil {
-		s.Logger.Info("Failed in CreateEmmployee to json marshall employee resource: ", errmsg)
+		s.Logger.Error("CreateEmployee failed to marshall employee resource: ", errmsg)
 		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
 		return
 	}
@@ -162,18 +190,22 @@ func (s *NounRouter) UpdateEmployeeById(w http.ResponseWriter, r *http.Request) 
 	urlIdentity := params["identityId"]
 	employeeId := params["employeeId"]
 
-	var EmployeeResource models.EmployeeResource
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&EmployeeResource)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		s.Logger.Info("Failed in UpdateEmployeeId to read http body: ", err)
+		s.Logger.Info("Failed  in UpdateEmployee to read http body: ", err)
+		s.WriteHttpError(w, constants.RESOURCE_BAD_REQUEST_CODE, err)
+		return
+	}
+
+	var EmployeeResource models.EmployeeResource
+	if err := json.Unmarshal(body, &EmployeeResource); err != nil {
+		s.Logger.Info("UpdateEmployeeById failed to unmarshall http body: ", err)
 		s.WriteHttpError(w, constants.RESOURCE_BAD_REQUEST_CODE, err)
 		return
 	}
 
 	//	authToken := r.Header.Get("X-AuthToken")
-	// OR
-
+	// OR just use:
 	authToken := security.GetAuthHeader(r)
 
 	// update the resource
@@ -186,7 +218,7 @@ func (s *NounRouter) UpdateEmployeeById(w http.ResponseWriter, r *http.Request) 
 
 	jsonResults, errmsg := json.Marshal(updatedResource)
 	if errmsg != nil {
-		s.Logger.Info("Failed in UpdateEmmployee to json marshall employee resource: ", errmsg)
+		s.Logger.Error("UpdateEmployeeById failed to marshall employee resource: ", errmsg)
 		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
 		return
 	}
@@ -208,8 +240,7 @@ func (s *NounRouter) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) 
 	}
 
 	//	authToken := r.Header.Get("X-AuthToken")
-	// OR
-
+	// OR just use:
 	authToken := security.GetAuthHeader(r)
 
 	Employee.Deleted = true
@@ -222,7 +253,7 @@ func (s *NounRouter) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) 
 
 	jsonResults, errmsg := json.Marshal(updatedResource)
 	if errmsg != nil {
-		s.Logger.Info("Failed in DeleteEmmployeeById to json marshall employee resource: ", errmsg)
+		s.Logger.Error("DeleteEmployeeById failed to marshall employee resource: ", errmsg)
 		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
 		return
 	}

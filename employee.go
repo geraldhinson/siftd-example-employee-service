@@ -22,39 +22,31 @@ func main() {
 	NounRouter := routers.NewNounRouter(employeeService)
 	if NounRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create noun api server. Shutting down.")
-		return
 	}
 
-	// here we use default implementation, but must pass auth model
+	// here we use a default implementation, but must pass auth model
 	NounJournalRouter := helpers.NewNounJournalRouter[models.EmployeeResource](employeeService, security.REALM_MACHINE, security.VALID_IDENTITY, security.ONE_HOUR, nil)
 	if NounJournalRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create journal api server. Shutting down.")
-		return
 	}
 
-	// here we use default implementation, but must pass auth model
+	// here we use a default implementation, but must pass auth model
 	HealthCheckRouter := helpers.NewNounHealthCheckRouter[models.EmployeeResource](employeeService, security.NO_REALM, security.NO_AUTH, security.NO_EXPIRY, nil)
 	if HealthCheckRouter == nil {
 		employeeService.Logger.Fatalf("Failed to create health check api server. Shutting down.")
-		return
 	}
 
-	// Add fake identity endpoints for local loopback testing.
+	// [Optional] Add fake identity endpoints for local loopback testing if not using a separate identity service.
+	// This will fail if the interface is not defined as loopback
 	if employeeService.IsLoopbackListener() {
-		FakeIdentityServiceRouter := helpers.NewFakeIdentityServiceRouter(
-			employeeService,
-			security.NO_REALM,
-			security.NO_AUTH,
-			security.NO_EXPIRY,
-			nil,
-		)
+		FakeIdentityServiceRouter := helpers.NewFakeIdentityServiceRouter(employeeService, security.NO_REALM, security.NO_AUTH, security.NO_EXPIRY, nil)
 		if FakeIdentityServiceRouter == nil {
 			employeeService.Logger.Fatalf(
 				"Failed to create fake identity service api server (for testing only). Shutting down.",
 			)
-			return
 		}
 	}
 
+	// starting listening for incoming API calls
 	employeeService.ListenAndServe()
 }

@@ -10,7 +10,11 @@
 
 2) Run this via the command line. 
 
-/<your-postgres-bin-folder>/psql --set=ON_ERROR_STOP=on -dpostgres -f/tmp/create_DB-Resource-Journal.sql 
+/<your-postgres-bin-folder>/psql --set=ON_ERROR_STOP=on -dpostgres -f/[yourprojectpath]/PostgresSQL]/create_DB-Resource-Journal.sql 
+OR
+/<your-postgres-bin-folder>/psql --set=ON_ERROR_STOP=on -dpostgres -f/[yourprojectpath]/PostgresSQL]/create_TestDB-Resource-Journal.sql
+
+EXAMPLE (Macbook): /usr/local/opt/postgresql@15/bin/psql --set=ON_ERROR_STOP=on -dpostgres -f/tmp/create_TestDB-Resource-Journal.sql
 
 (depending on your local postgres setup you may need to provide user/password too)
 
