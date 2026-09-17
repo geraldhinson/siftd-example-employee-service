@@ -21,7 +21,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "test/unittests.go",
+            "program": "employee_test.go",
             "env": {
                 "RESDIR_PATH": "${workspaceFolder}",
                 "SIFTD_ENV_FILE": "app.env",

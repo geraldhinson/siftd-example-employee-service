@@ -1,0 +1,7 @@
+The best way to run unit/integrations tests is via the Termainal window in VSCode (or your equivalent):
+
+./runUnitTests in the root folder of this project
+
+This will run the tests and also display in your browser the results at the end.
+
+There is also a postman collection that was used while building this example app. It is in the /test folder (ie. where you are now).
