@@ -108,7 +108,7 @@ func (s *NounRouter) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
 	jsonResults, errmsg := json.Marshal(Employee)
 	if errmsg != nil {
 		s.Logger.Error("GetEmployeeById failed to convert employee to json: ", errmsg)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, fmt.Errorf(constants.INTERNAL_SERVER_ERROR))
 		return
 	}
 
@@ -130,7 +130,7 @@ func (s *NounRouter) GetEmployeesByOwnerId(w http.ResponseWriter, r *http.Reques
 	jsonResults, err := json.Marshal(Employees)
 	if err != nil {
 		s.Logger.Error("GetEmployeesByOwnerId failed to convert employees to json: ", err)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, err)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, fmt.Errorf(constants.INTERNAL_SERVER_ERROR))
 		return
 	}
 	// make empty array if no results found - it's friendlier to the client
@@ -178,7 +178,7 @@ func (s *NounRouter) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	jsonResults, errmsg := json.Marshal(resource)
 	if errmsg != nil {
 		s.Logger.Error("CreateEmployee failed to marshall employee resource: ", errmsg)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, fmt.Errorf(constants.INTERNAL_SERVER_ERROR))
 		return
 	}
 
@@ -219,7 +219,7 @@ func (s *NounRouter) UpdateEmployeeById(w http.ResponseWriter, r *http.Request) 
 	jsonResults, errmsg := json.Marshal(updatedResource)
 	if errmsg != nil {
 		s.Logger.Error("UpdateEmployeeById failed to marshall employee resource: ", errmsg)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, fmt.Errorf(constants.INTERNAL_SERVER_ERROR))
 		return
 	}
 
@@ -254,7 +254,7 @@ func (s *NounRouter) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) 
 	jsonResults, errmsg := json.Marshal(updatedResource)
 	if errmsg != nil {
 		s.Logger.Error("DeleteEmployeeById failed to marshall employee resource: ", errmsg)
-		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, errmsg)
+		s.WriteHttpError(w, constants.RESOURCE_INTERNAL_ERROR_CODE, fmt.Errorf(constants.INTERNAL_SERVER_ERROR))
 		return
 	}
 
